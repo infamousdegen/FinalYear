@@ -1,0 +1,21 @@
+{   "ruleHeader":
+    {
+        "action":"alert",
+        "protocols":"tcp",
+        "sourceIP":"any",
+        "sourcePort":"any",
+        "destinationIP":"any",
+        "destinationPort":"any",
+        "direction":"->",
+        "sid":1
+    },
+
+    "ruleOptions":
+    {
+        "msg":"Packet Detected",
+        "payloadDetectionOptions":{
+            "regex":"[a-zA-Z]"
+        }
+
+    }
+}
