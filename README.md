@@ -8,3 +8,4 @@
 - [ ] Make PORT parsing better 
 - [ ] Content matching based on the HTTP/HTTPS packet content
 
+- [] https://github.com/the-tcpdump-group/libpcap (might have to move to raw accessing of the packets using libpcap)
