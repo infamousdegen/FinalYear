@@ -7,5 +7,6 @@
 - [ ] Create classes for PORT AND ACTION module 
 - [ ] Make PORT parsing better 
 - [ ] Content matching based on the HTTP/HTTPS packet content
+- [ ] the packets.py matches http packets based on port number get a better way to do it
 
-- [] https://github.com/the-tcpdump-group/libpcap (might have to move to raw accessing of the packets using libpcap)
+- [ ] https://github.com/the-tcpdump-group/libpcap (might have to move to raw accessing of the packets using libpcap)

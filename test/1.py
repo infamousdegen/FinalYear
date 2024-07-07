@@ -6,11 +6,12 @@ def safe_decode(field):
 
 def packet_handler(pkt):
     if pkt.haslayer(HTTPRequest):
-        print("HTTP Request:")
-        print(f"Method: {safe_decode(pkt[HTTPRequest].Method)}")
-        print(f"Host: {safe_decode(pkt[HTTPRequest].Host)}")
-        print(f"Path: {safe_decode(pkt[HTTPRequest].Path)}")
+        # print("HTTP Request:")
+        # print(f"Method: {safe_decode(pkt[HTTPRequest].Method)}")
+        # print(f"Host: {safe_decode(pkt[HTTPRequest].Host)}")
+        # print(f"Path: {safe_decode(pkt[HTTPRequest].Path)}")
         # pkt.show()
+        pass
     elif pkt.haslayer(HTTPResponse):
         print("HTTP Response:")
         print(f"Status Code: {pkt[HTTPResponse].Status_Code}")
