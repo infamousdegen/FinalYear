@@ -12,10 +12,11 @@
 
     "ruleOptions":
     {
-        "msg":"Packet Detected",
+        "msg":"Possible SQL Injection - Inline Comments detected",
         "payloadDetectionOptions":{
-            "regex":"[a-zA-Z]"
-        }
+            "regex":"' or ''*'"    
 
     }
+}
+
 }
