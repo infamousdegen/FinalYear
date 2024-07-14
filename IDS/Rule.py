@@ -8,7 +8,7 @@ class Rule:
     #Assumptions that all validation for the rules has taken place and rules are as specified in the schema
     """ NIDS RULE """
 
-    def __init__(self,data):
+    def __init__(self,data) -> None:
         """Below mentioned are mandatory"""
 
         self.action = data["ruleHeader"]["action"]
@@ -117,16 +117,9 @@ class Rule:
         return True
 
         
-    def getMessageToPrint(self):
+    def getMessageToPrint(self) -> str:
         msg = self.ruleOptions.get("generalOptions",None).get("msg",None)
         if msg:
             return msg
-        return False
-
-
-    # def getMatchLogMessage(self):
-    #     return msg
-    
-    # def getMatchedPrintMessag(self):
-    #     return msg
+        return ''
         
