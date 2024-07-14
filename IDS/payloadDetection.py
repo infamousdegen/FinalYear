@@ -1,5 +1,7 @@
 from scapy.all import *
 import re
+from scapy.layers.http import *
+from ApplicationLayer import *
 
 
 def checkPayload(payloadOptions, pkt):
@@ -29,3 +31,7 @@ def checkPayload(payloadOptions, pkt):
         except re.error as e:
             print("Error occurred while searching:", e)
     return False
+
+
+
+

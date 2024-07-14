@@ -6,6 +6,6 @@ def checkProtocol(protocol,pkt):
         return True
     elif(protocol.lower() == 'udp' and pkt.haslayer(UDP)):
         return True
-    elif(protocol.lower() == 'icmp' and pkt.haslayer(ICMP)):
-        return True
+    # elif(protocol.lower() == 'icmp' and pkt.haslayer(ICMP)):
+    #     return True
     return False 

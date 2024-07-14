@@ -4,6 +4,7 @@ from scapy.all import *
 from Utils import *
 from Rule import *
 from malicious import *
+import pdb
 
 
 RED = '\033[91m'
@@ -12,6 +13,7 @@ URG = 0x20
 
 
 def ipString(ip):
+
     """Construct the human-readable string corresponding to the IP header."""
 
     out = "[IP HEADER]" + "\n"
@@ -33,7 +35,6 @@ def ipString(ip):
 
 def matchedIpString(ip, rule):
     """Construct the human-readable string corresponding to the matched IP header, with matched fields in red."""
-
     out = "[IP HEADER]" + "\n"
     out += "\t Version: " + str(ip.version) + "\n"
     if (hasattr(rule, "len")):
@@ -158,10 +159,9 @@ def payloadString(pkt):
     """Construct the human-readable string corresponding to the payload."""
     if (pkt.payload):
         data = bytes(pkt.payload)
-        cleanedPayload = cleanpayload(data)
         out = ""
-        if(not detect_malicious_pattern(cleanedPayload)):
-            out += RED + "Potentially Malicious Packet" ENDC + "\n"
+        # if(not detect_malicious_pattern(cleanedPayload)):
+        #     out += RED + "Potentially Malicious Packet" + ENDC + "\n"
         lines = data.splitlines()
         s = ""
         for line in lines:
@@ -180,17 +180,12 @@ def matchedTcpPayloadString(tcp, rule):
     out = "[TCP Payload]" + "\n"
 
 
-    if (hasattr(rule, "http_request")):
-        out += RED + "HTTP Request: " + str(rule.http_request) + ENDC + "\n"
+    # if (hasattr(rule, "http_request")):
+    #     out += RED + "HTTP Request: " + str(rule.http_request) + ENDC + "\n"
 
     if (hasattr(rule, "content") and tcp.payload):
         data = bytes(tcp.payload)
-        cleanedPayload = cleanpayload(data)
 
-        if(not detect_malicious_pattern(cleanedPayload)):
-            return out += RED + "Potentially Malicious Packet" ENDC + "\n"
-        
-        # add red color when content found in the string
         data = re.sub(rule.content.encode('utf-8'),  rule.content.encode('utf-8'), data)
         lines = data.splitlines()
 

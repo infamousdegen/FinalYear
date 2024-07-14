@@ -1,0 +1,120 @@
+{
+    "title": "Packet Action Rules",
+    "description": "Schema for defining actions to take on network packets. This includes specifying the action, protocol, source and destination IP addresses, source and destination ports, the direction of traffic flow within a rule header, and application layer protocols.",
+    "type": "object",
+    "properties": {
+        "ruleHeader": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "description": "The action to take on the packet",
+                    "enum": ["alert", "block", "drop", "log", "pass"]
+                },
+                "protocols": {
+                    "type": "string",
+                    "description": "The protocols based on which the action has to be taken",
+                    "enum": ["tcp", "udp", "icmp"]
+                },
+                "applicationLayer": {
+                    "type": "string",
+                    "description": "The application layer protocol (e.g., HTTP, FTP, SMTP)",
+                    "enum": ["http", "ftp", "smtp"]
+                },
+                "sourceIP": {
+                    "type": ["string", "array"],
+                    "description": "The source IP address(es), which may be a single IP, a CIDR block, the keyword 'any', or a list of these.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationIP": {
+                    "type": ["string", "array"],
+                    "description": "The destination IP address(es), similar to the source IP.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sourcePort": {
+                    "type": ["string", "array"],
+                    "description": "The source port numbers, which can be a single port, a range, or include negation (e.g., '!80', '80', '1000:2000').",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationPort": {
+                    "type": ["string", "array"],
+                    "description": "The destination port numbers, similar to the source ports, and also including negation options.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "direction": {
+                    "type": "string",
+                    "description": "The direction of the traffic flow this rule applies to.",
+                    "enum": ["->"]
+                }
+            },
+            "required": ["action", "protocols", "sourceIP", "destinationIP", "sourcePort", "destinationPort", "direction"]
+        },
+        "ruleOptions": {
+            "type": "object",
+            "properties": {
+                "generalRules": {
+                    "type": "object",
+                    "properties": {
+                        "msg": {
+                            "type": "string",
+                            "description": "Message describing the rule"
+                        },
+                        "sid": {
+                            "type": "integer",
+                            "description": "Signature ID of the rule"
+                        }
+                    },
+                    "required": ["msg", "sid"]
+                },
+                "payloadDetectionRules": {
+                    "type": "object",
+                    "properties": {
+                        "content": {
+                            "type": "string",
+                            "description": "Specific content or pattern to look for in the payload"
+                        },
+                        "regex": {
+                            "type": "string",
+                            "description": "Regular expression to match patterns in the payload"
+                        }
+                    }
+                },
+                "httpHeaders": {
+                    "type": "object",
+                    "properties": {
+                        "headerName": {
+                            "type": "string",
+                            "description": "The name of the HTTP header to match"
+                        },
+                        "headerValue": {
+                            "type": "string",
+                            "description": "The value of the HTTP header to match"
+                        }
+                    }
+                },
+                "httpBody": {
+                    "type": "object",
+                    "properties": {
+                        "content": {
+                            "type": "string",
+                            "description": "Specific content or pattern to look for in the HTTP body"
+                        },
+                        "regex": {
+                            "type": "string",
+                            "description": "Regular expression to match patterns in the HTTP body"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "required": ["ruleHeader", "ruleOptions"]
+}

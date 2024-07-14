@@ -22,7 +22,3 @@ def read_all_rules(directory: str):
 
     return rules
 
-# # Example usage:
-# directory = 'rules'
-# rules = read_all_rules(directory)
-
