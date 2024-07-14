@@ -1,20 +1,21 @@
+
 {   "ruleHeader":
     {
-        "action":"alert",
+        "action":"log",
         "protocols":"tcp",
         "sourceIP":"any",
         "sourcePort":"any",
         "destinationIP":"any",
-        "destinationPort":"49152",
+        "destinationPort":"any",
         "direction":"->",
-        "sid":1
+        "sid":2
     },
 
     "ruleOptions":
     {
-        "msg":"Packet Detected",
+        "msg":"SQL Injection detected - Inline Comments detected",
         "payloadDetectionOptions":{
-            "regex":"[a-zA-Z]"
+            "regex":"1' ORDER BY 1--+"
         }
 
     }

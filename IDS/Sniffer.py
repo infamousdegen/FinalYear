@@ -41,6 +41,6 @@ class Sniffer(Thread):
     def run(self):
         print("Sniffing started.")
         # if self.pcap_file:
-        sniff(offline="various_packets.pcap", prn=self.inPacket, store=0, stop_filter=self.stopfilter, session=TCPSession)
+        sniff(iface="lo", prn=self.inPacket, store=0, stop_filter=self.stopfilter, session=TCPSession)
         # else:
         #     sniff(iface="lo", prn=self.inPacket, filter="", store=0, stop_filter=self.stopfilter, session=TCPSession)
