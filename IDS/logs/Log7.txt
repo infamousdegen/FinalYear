@@ -1,2 +1,0 @@
-SID: 2
-Summary: Ether / IP / TCP 192.168.29.19:52416 > 20.42.65.85:https A

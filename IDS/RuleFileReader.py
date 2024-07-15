@@ -1,8 +1,8 @@
 import os
 import json
-from Rule import *
+from Rule import Rule
 
-def read_all_rules(directory: str):
+def read_all_rules(directory: str) -> list :
     """Reads all rule files in the specified directory, validates, and parses them into Rule instances."""
     rules = []
     path_to_files = [f for f in os.listdir(directory) if f.endswith(".json") and f[:-5].isdigit()]

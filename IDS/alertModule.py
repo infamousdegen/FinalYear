@@ -1,12 +1,10 @@
 from scapy.all import *
-from scapy.all import IP, TCP,UDP
+from scapy.all import IP, TCP,UDP,Packet
 from HTTP import ApplHttp
 
 class Alert():
-    def __init__(self,rulesid):
-        self.rulesid = rulesid
     
-    def ipString(self,pkt,sid) -> str:
+    def ipString(self,pkt:Packet,sid:int) -> str:
         '''
         If this function is being called then that means that there is IP layer in the packet and prints entire details about the IP
         '''
@@ -32,7 +30,7 @@ class Alert():
             out += "\t Options: " + str(ip.options) + "\n"
         return msg + out
     
-    def tcpString(self,pkt,sid) -> str:
+    def tcpString(self,pkt:Packet,sid:int) -> str:
         """
         If this function is called then it means that there is TCP layer in the packet
         """
@@ -57,7 +55,7 @@ class Alert():
         return msg + out
     
 
-    def udpString(self,pkt,sid):
+    def udpString(self,pkt:Packet,sid:int):
         """
         If this function is called then the packet has UDP layer 
         """
@@ -73,7 +71,7 @@ class Alert():
         return msg+out
     
 
-    def httpString(self, pkt, sid):
+    def httpString(self,pkt:Packet,sid:int):
         msg = ""
         msg += " Alert \n"
         msg += f"Rule Matched: {sid} \n"
@@ -86,7 +84,7 @@ class Alert():
 
         return msg
     
-    def tcpPayload(self,pkt,sid) -> str:
+    def tcpPayload(self,pkt:Packet,sid:int) -> str:
         """
         If this function is called then that means tcp payload was matched or had to be printed
         """
@@ -106,8 +104,30 @@ class Alert():
 
         return msg
     
+    # def tcpPayload(pkt:Packet,sid:int) -> str:
+    #     print("inside alert module")
+    #     """
+    #     If this function is called then that means tcp payload was matched or had to be printed
+    #     """
+    #     msg = ""
+    #     msg += " Alert \n"
+    #     msg += f"Rule Matched: {sid} \n"
+    #     if Raw in pkt:
+    #         payload = pkt[Raw].load
+    #         if isinstance(payload, bytes):
+    #             try:
+    #                 payload = payload.decode('utf-8', errors='ignore')
+    #                 print("printing stuff")
+    #             except UnicodeDecodeError:
+    #                 payload = str(payload)
+    #         msg += payload
+    #     else:
+    #         msg += "No TCP payload found."
 
-    def udpPayload(self,pkt,sid) -> str:
+    #     return msg
+    
+
+    def udpPayload(self,pkt:Packet,sid:int) -> str:
         """ 
         If this function is called then udp payload was matched or had to be printed
         """
@@ -128,7 +148,7 @@ class Alert():
         return msg
     
 
-    def httpBody(self,pkt,sid) -> str:
+    def httpBody(self,pkt:Packet,sid:int) -> str:
         """
         If this function is called then http body was needed or had to be printed
         """
@@ -137,6 +157,7 @@ class Alert():
         msg += f"Rule Matched: {sid} \n"
         http = ApplHttp(pkt)
         body = http.get_payload()
+        out = ""
         if body is not None:
             out = "[HTTP BODY] \n"
             msg += body + "\n"

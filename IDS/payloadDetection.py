@@ -1,4 +1,5 @@
 from scapy.all import *
+from scapy.all import UDP,TCP
 import re
 from scapy.layers.http import *
 from ApplicationLayer import *

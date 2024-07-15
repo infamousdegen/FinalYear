@@ -1,2 +1,0 @@
-SID: 2
-Summary: Ether / IP / TCP 162.159.134.234:https > 192.168.29.19:55566 PA / Raw

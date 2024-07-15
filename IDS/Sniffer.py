@@ -1,14 +1,12 @@
 from threading import Thread
 from scapy.all import *
-from Rule import *
-from alertModules import *
-from logModules import *
-import pdb
+from Rule import Rule
+from logModules import log_packet
 
 class Sniffer(Thread):
     """Thread responsible for sniffing and detecting suspect packet."""
 
-    def __init__(self, ruleList, pcap_file=None):
+    def __init__(self, ruleList:List[Rule], pcap_file=None):
         Thread.__init__(self)
         self.stopped = False
         self.ruleList = ruleList
@@ -24,11 +22,15 @@ class Sniffer(Thread):
         """Directive for each received packet."""
         for rule in self.ruleList:
             matched = rule.match(pkt)
+
             if matched:
-                print(matched)
                 action = rule.action
                 if action.lower() == 'alert':
-                    print(alert(pkt, rule.sid))
+                    
+                    messagetoAlert = rule.getEntireAlertMessage(pkt,rule.sid)
+                    print("...............................................................................................")
+                    print(messagetoAlert)
+                    print("...............................................................................................")
                 elif action.lower() == 'log':
                     log_packet(rule, pkt)
                 elif action.lower() == 'block':
@@ -41,7 +43,7 @@ class Sniffer(Thread):
     def run(self):
         print("Sniffing started.")
         # if self.pcap_file:
-        sniff(iface="eth0", prn=self.inPacket, store=0, stop_filter=self.stopfilter, session=TCPSession)
+        # sniff(iface="eth0", prn=self.inPacket, store=0, stop_filter=self.stopfilter, session=TCPSession)
         # else:
         # pdb.set_trace()
-        # sniff(iface="lo", prn=self.inPacket, filter="", store=0, stop_filter=self.stopfilter, session=TCPSession)
+        sniff(iface="wlan0", prn=self.inPacket, filter="", store=0, stop_filter=self.stopfilter, session=TCPSession)

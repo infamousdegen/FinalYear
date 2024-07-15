@@ -9,22 +9,22 @@ class ApplHttp:
         Create instances of ApplHttp on top of HTTP instances to make analyzing HTTP packets faster.
         '''
         self.pkt = pkt
-        self.type = self._determine_http_type()
+        # self.type = self._determine_http_type()
 
 
-        if self.type == "Unknown":
-            raise ValueError("The packet does not contain an HTTP request or response.")
+        # if self.type == "Unknown":
+        #     raise ValueError("Inside HTTP.py some issue ")
 
-    def _determine_http_type(self) -> str:
-        '''
-        Determine whether the packet is an HTTP request or response.
-        '''
-        if self.pkt.haslayer(HTTPRequest):
-            return "HTTPRequest"
-        elif self.pkt.haslayer(HTTPResponse):
-            return "HTTPResponse"
-        else:
-            return "Unknown"
+    # def _determine_http_type(self) -> str:
+    #     '''
+    #     Determine whether the packet is an HTTP request or response.
+    #     '''
+    #     if self.pkt.haslayer(HTTPRequest):
+    #         return "HTTPRequest"
+    #     elif self.pkt.haslayer(HTTPResponse):
+    #         return "HTTPResponse"
+    #     else:
+    #         return "Unknown"
 
     def get_payload(self) -> Optional[str]:
         '''
@@ -48,13 +48,15 @@ class ApplHttp:
         '''
         Extracts and returns HTTP headers as a dictionary.
         '''
+        
         headers = {}
         if self.type == "HTTPRequest":
             layer = self.pkt.getlayer(HTTPRequest)
         elif self.type == "HTTPResponse":
             layer = self.pkt.getlayer(HTTPResponse)
         else:
-            return headers 
+            print("inside retunr None")
+            return None 
         
         for field_name, field_value in layer.fields.items():
             if field_name not in ['Method', 'Path', 'Http_Version', 'Status_Code', 'Reason_Phrase']:

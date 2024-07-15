@@ -1,18 +1,19 @@
 from ipDetection import checkIp
-from protocolDetection import *
-from payloadDetection import *
-from applicationLayerDetection import *
-import pdb
+from protocolDetection import checkProtocol
+from applicationLayerDetection import checkApplicationProtocol
 from HTTP import ApplHttp
+from alertModule import Alert
+import re
+from scapy.all import Packet, TCP, UDP, Raw
+from typing import Optional
+from scapy.layers.http import *
+
 class Rule:
-    #Assumptions that all validation for the rules has taken place and rules are as specified in the schema
     """ NIDS RULE """
 
-    def __init__(self,data) -> None:
+    def __init__(self, data) -> None:
         """Below mentioned are mandatory"""
-
         self.action = data["ruleHeader"]["action"]
-        #FIX THIS , IT IS NOT NECESSARY THAT TRANSPORT LAYER HAS TO BE PRESENT 
         self.protocol = data["ruleHeader"]["protocols"]
         self.sourceIP = data["ruleHeader"]["sourceIP"]
         self.destinationIP = data["ruleHeader"]["destinationIP"]
@@ -21,105 +22,135 @@ class Rule:
         self.direction = data["ruleHeader"]["direction"]
         self.sid = data["ruleHeader"]["sid"]
 
-        #It will be a dict of ruleoptions(these are optional)
-        self.ruleOptions = data.get("ruleOptions",None)
+        # Allow ruleOptions to be None
+        self.ruleOptions = data.get("ruleOptions", None)
+        self.applicationLayer = data["ruleHeader"].get("applicationLayer", None)
 
-        self.applicationLayer = data.get["ruleHeader"].get("applicationlayer",None)
-
-
-
-    
-    def match(self,pkt) -> bool:
+    def match(self, pkt: Packet) -> bool:
         """
-        Return True if and only if everything in the the provided rule matches or else it will return False
+        Return True if and only if everything in the provided rule matches or else it will return False
         """
 
-        #ApplicationLayer 
-        ''''
-        Only check Applicaiton layer if the  rule has applicationLayer 
-        '''
+        # Application Layer
         if self.applicationLayer is not None:
-            '''
-            Current only implemented HTTP for application layer 
-            '''
-            # Check whether the given pkt has the application layer mention in the pkt 
-            if not checkApplicationProtocol(self.applicationLayer,pkt): return False
-            #Check whether any rule option exist , 
-            # like checking for payload or checking for headers and whether the given header and the packet matches
-            #Only support application layer is HTTP for now 
+            
+            if not checkApplicationProtocol(self.applicationLayer, pkt):
+                return False
 
             if self.applicationLayer.lower() == 'http':
-                http = ApplHttp(pkt)
-                
-                #This means that application the provided application layer is http and thus check all matching rule options 
-                #such as http headers , payload 
-
-                httpheader = self.ruleOptions.get("httpHeaders",None)
-                httpbody = self.ruleOptionsl.get("httpBody",None)
-                if httpheader is not None:
-                    #Assumption if httpheader is present in rule options then a header name with some value will be provided
+                try:
                     
-                    pktheader = http.get_headers()
-                    ruleheaderName = httpheader.get("headerName")
-                    ruleheaderValue = httpheader.get("headerValue")
+                    # #Take care of this IMPORTANT
+                    # if not pkt.haslayer(HTTPRequest) or not pkt.haslayer(HTTPResponse): return False
+                    http = ApplHttp(pkt)
+                    httpheader = self.ruleOptions.get("httpHeaders", None) if self.ruleOptions else None
+                    httpbody = self.ruleOptions.get("httpBody", None) if self.ruleOptions else None
 
-                    if ruleheaderName not in pktheader or pktheader[ruleheaderName] != ruleheaderValue: return False
-                
-                #Assumption that if the httpbody key exist then there will be either content or regex matching request 
-                if httpbody is not None:
-                    #Get whether the httpbody wants for content matching or regex matching 
-                    pktpayload = http.get_payload()
-                    if pktpayload is None: return False
+                    print("2")
+                    if httpheader is not None:
+                        pktheader = http.get_headers()
+                        print("pktheaders",pktheader)
+                        ruleheaderName = httpheader.get("headerName")
+                        ruleheaderValue = httpheader.get("headerValue")
 
-                    content = httpbody.get("content", None)
-                    regex = httpbody.get("regex", None)
+                        if ruleheaderName not in pktheader or pktheader[ruleheaderName] != ruleheaderValue:
+                            return False
+                    print("3")
+                    if httpbody is not None:
+                        pktpayload = http.get_payload()
+                        if pktpayload is None:
+                            return False
 
-                    #If it is content matching then match for exact content
-                    if content is not None and content != pktpayload: return False
-                    if regex is not None and not re.search(regex, pktpayload): return False
+                        content = httpbody.get("content", None)
+                        regex = httpbody.get("regex", None)
 
+                        if content is not None and content != pktpayload:
+                            return False
+                        if regex is not None and not re.search(regex, pktpayload):
+                            return False
+                except Exception as e:
+                    print(f"Error processing HTTP packet: {e}")
+                    return False
 
+        # Transport Layer
+        if not checkProtocol(self.protocol, pkt):
+            return False
 
-        #Transport Layer
-        '''
-        Assumption that transport layer will  be present 
-        Note: Assumption is wrong fix it later 
-        '''
+        # Matches PAYLOAD
+        payload = self.ruleOptions.get("payloadDetectionOptions", None) if self.ruleOptions else None
+        if payload is not None:
+            pktpayload = self._process_tcp_payload(pkt)
+            if pktpayload is None:
+                return False
+            content = payload.get("content", None)
+            regex = payload.get("regex", None)
+            if content is not None and content != pktpayload:
+                return False
+            # print("pktpayload",pktpayload)
+            if regex is not None and not re.search(regex, pktpayload):
+                return False
 
-        if(not checkProtocol(self.protocol,pkt)): return False
-
-        #For now only thing to match is payload , whether it maybe the TCP or UDP
-
-        #Matches PAYLOAD  
-
-        if self.ruleOptions is not None:
-            payload = self.ruleOptions.get("payloadDetectionRules",None)
-            content = payload.get("content",None)
-            regex = payload.get("regex",None)
-
-            if content is not None and content != pktpayload: return False
-            if regex is not None and not re.search(regex, pktpayload): return False
-
-
-        #Matches PORT on the Transport Layer 
-        #PUT MANOMITHRANS CODE HERE 
-
-
-        #Network Layer
-
-        '''
-        Assumption there will be IP's 
-        Note: Assumption is wrong , not sure whether we have to go even lower layer where IP's are not present 
-        '''
-        # In the Network Layer only focusing on IP not other fields as of now
-        if not checkIp(self.sourceIP,self.destinationIP,pkt): return False
-
+        if not checkIp(self.sourceIP, self.destinationIP, pkt):
+            return False
         return True
 
-        
+    def getEntireAlertMessage(self, pkt: Packet, ruleSid: int) -> str:
+        """
+        Based on the assumptions made in match we can directly get it to print IP layer and Transport Layer
+        """
+        # If there is some message to print 
+        msg = "[USER DEFINED MSG] \n"
+        msg += self.getMessageToPrint()
+        print("before calling alert")
+        alert = Alert()
+        ipString = alert.ipString(pkt, ruleSid)
+        tcpString = alert.tcpString(pkt, ruleSid) if pkt.haslayer(TCP) else ""
+        udpString = alert.udpString(pkt, ruleSid) if pkt.haslayer(UDP) else ""
+
+        httpHeader = ""
+        httpBody = ""
+        if self.applicationLayer is not None and self.applicationLayer.lower() == 'http':
+            try:
+                httpHeader = alert.httpString(pkt, ruleSid)
+                httpBody = alert.httpBody(pkt, ruleSid)
+            except Exception as e:
+                print(f"Error processing HTTP alert: {e}")
+
+        tcpPayload = "[TCP PAYLOAD]"
+        udpPayload = "[UDP PAYLOAD]"
+
+        if self.ruleOptions and self.ruleOptions.get("payloadDetectionOptions", None):
+            tcpPayload += alert.tcpPayload(pkt, ruleSid) if pkt.haslayer(TCP) else ""
+            udpPayload += alert.udpPayload(pkt, ruleSid) if pkt.haslayer(UDP) else ""
+
+        completeAlertMessage = msg + "\n" + ipString + tcpString + udpString + httpHeader + httpBody + tcpPayload + udpPayload
+        return completeAlertMessage
+
     def getMessageToPrint(self) -> str:
-        msg = self.ruleOptions.get("generalOptions",None).get("msg",None)
-        if msg:
-            return msg
-        return ''
-        
+        if self.ruleOptions:
+            return self.ruleOptions.get("msg", "")
+        return ""
+
+    def _process_tcp_payload(self, pkt: Packet) -> Optional[str]:
+        if Raw in pkt:
+            payload = pkt[Raw].load
+            if isinstance(payload, bytes):
+                try:
+                    payload = payload.decode('utf-8', errors='ignore')
+                except UnicodeDecodeError:
+                    payload = str(payload)
+            return payload
+        else:
+            return None
+
+    def _process_udp_payload(self, pkt: Packet) -> Optional[str]:
+        if Raw in pkt:
+            payload = pkt[Raw].load
+            if isinstance(payload, bytes):
+                try:
+                    payload = payload.decode('utf-8', errors='ignore')
+                except UnicodeDecodeError:
+                    payload = str(payload)
+            return payload
+        else:
+            return None
