@@ -1,6 +1,4 @@
 import iptc 
-
-
     
 def drop(ruleobj,pkt):
     #if pkt.haslayer(Raw) and b"get lost" in pkt[Raw].load:

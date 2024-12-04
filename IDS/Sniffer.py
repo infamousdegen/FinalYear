@@ -4,6 +4,7 @@ from Rule import *
 from alertModules import *
 from logModules import *
 import pdb
+from dropModules import *
 
 class Sniffer(Thread):
     """Thread responsible for sniffing and detecting suspect packet."""
@@ -34,13 +35,13 @@ class Sniffer(Thread):
                 elif action.lower() == 'block':
                     print("Action Under Construction")
                 elif action.lower() == 'drop':
-                    print("Action Under Construction")
+                    print(drop(rule,pkt))
                 else:
                     print("Not a valid action")
 
     def run(self):
         print("Sniffing started.")
-        # if self.pcap_file:
-        sniff(offline="various_packets.pcap", prn=self.inPacket, store=0, stop_filter=self.stopfilter, session=TCPSession)
-        # else:
-        #     sniff(iface="lo", prn=self.inPacket, filter="", store=0, stop_filter=self.stopfilter, session=TCPSession)
+        #if self.pcap_file:
+        #sniff(offline="various_packets.pcap", prn=self.inPacket, store=0, stop_filter=self.stopfilter, session=TCPSession)
+        #else:
+        sniff(iface="lo", prn=self.inPacket, filter="ip", store=0, stop_filter=self.stopfilter, session=TCPSession)
