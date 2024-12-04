@@ -1,20 +1,21 @@
+
 {   "ruleHeader":
     {
-        "action":"alert",
+        "action":"log",
         "protocols":"tcp",
         "sourceIP":"any",
         "sourcePort":"any",
         "destinationIP":"any",
-        "destinationPort":"49152",
+        "destinationPort":"any",
         "direction":"->",
-        "sid":1
+        "sid":2
     },
 
     "ruleOptions":
     {
-        "msg":"Packet Detected",
+        "msg":"Possible Server Side Template Injection attack",
         "payloadDetectionOptions":{
-            "regex":"[a-zA-Z]"
+            "regex":"{{request|attr([request.args.usc*2,request.args.class,request.args.usc*2]|join)}}"
         }
 
     }

@@ -43,6 +43,14 @@ def checkIpAndPort(sourceIp, destinationIP, sourcePorts, destinationPorts, direc
         print("Neither TCP nor UDP layer found in packet.")
         return False 
 
-    if ('any' not in sourcePorts and srcPort not in sourcePorts) or ('any' not in destinationPorts and dstPort not in destinationPorts):
+    if (str(srcPort) == sourcePorts):
+        print(f"Source port {srcPort} of packet matches the rule")
+        return True
+    if(str(dstPort) == destinationPorts):
+        print(f"Destination port {dstPort} of packet matches the rule")
+        return True
+    if('any' in sourcePorts or 'any' in destinationPorts):  
+        return True
+    else:  
         return False
     return True
